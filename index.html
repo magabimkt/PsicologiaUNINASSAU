@@ -130,6 +130,7 @@
   .net-node{ animation: nodePulse 3s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
   .net-node.hub{ animation-duration:2.4s; }
   .net-edge{ opacity:.28; }
+  .dendrite{ stroke:var(--gold); opacity:.22; stroke-width:.9; stroke-linecap:round; }
   @keyframes nodePulse{ 0%,100%{ opacity:.5; transform:scale(1);} 50%{ opacity:1; transform:scale(1.45);} }
   h1#heroQuestion{ transition:opacity .35s ease, transform .35s ease; min-height:3.2em; }
   h1#heroQuestion.fading{ opacity:0; transform:translateY(6px); }
@@ -400,7 +401,7 @@
         </div>
         <div class="feat-row">
           <div class="fi"><span class="ico" data-icon="wifi"></span></div>
-          <div><h4>Ecossistema digital</h4><p>Portal acadêmico e cursos extras com o GoCursos.</p></div>
+          <div><h4>Ecossistema digital</h4><p>Portal acadêmico e cursos extras com o GoKursos.</p></div>
         </div>
       </div>
       <div class="split-media">
@@ -592,6 +593,29 @@
   let svg = '<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">';
   svg += '<defs><filter id="spark" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.2"/></filter></defs>';
 
+  // dendrites — short branching filaments around each neuron (purely textural, sells the "neuron" look)
+  function dendrites(x,y,i,branchLen){
+    const count = 5;
+    const baseAngle = (i*53) % 360;
+    let s = '';
+    for(let k=0;k<count;k++){
+      const ang = (baseAngle + k*(360/count)) * Math.PI/180;
+      const ex = x + Math.cos(ang)*branchLen;
+      const ey = y + Math.sin(ang)*branchLen;
+      s += `<line class="dendrite" x1="${x}" y1="${y}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"/>`;
+      const forkLen = branchLen*0.42;
+      [-0.42,0.42].forEach(off=>{
+        const a = ang+off;
+        s += `<line class="dendrite" x1="${ex.toFixed(1)}" y1="${ey.toFixed(1)}" x2="${(ex+Math.cos(a)*forkLen).toFixed(1)}" y2="${(ey+Math.sin(a)*forkLen).toFixed(1)}"/>`;
+      });
+    }
+    return s;
+  }
+  svg += '<g>';
+  netNodes.forEach((n,i)=>{ svg += dendrites(n[0], n[1], i, hubs.includes(i) ? 20 : 13); });
+  svg += '</g>';
+
+  // axon connections between neurons
   svg += '<g class="net-edge" stroke="var(--gold)" stroke-width="1">';
   netEdges.forEach(([a,b])=>{
     svg += `<line x1="${netNodes[a][0]}" y1="${netNodes[a][1]}" x2="${netNodes[b][0]}" y2="${netNodes[b][1]}"/>`;
